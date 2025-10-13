@@ -1,0 +1,112 @@
+// Prisma schema for Camepharm
+// PostgreSQL by default; can be adapted to MySQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  email         String   @unique
+  phone         String?  @unique
+  passwordHash  String
+  role          UserRole
+  fullName      String
+  pharmacy      Pharmacy?
+  patient       Patient?
+}
+
+enum UserRole {
+  PATIENT
+  PHARMACY_OWNER
+  ADMIN
+}
+
+model Patient {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  dateOfBirth  DateTime?
+  address      String?
+  savedSearches Json     @default("[]")
+  orders       Order[]
+}
+
+model Pharmacy {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id])
+  name          String
+  licenseNumber String    @unique
+  phone         String
+  address       String
+  latitude      Float
+  longitude     Float
+  verified      Boolean   @default(false)
+  inventories   Inventory[]
+  orders        Order[]
+  hours         String?   // JSON string of opening hours per day
+}
+
+model Drug {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  name        String      @unique
+  description String?
+  barcode     String?     @unique
+  form        String?
+  strength    String?
+  inventories Inventory[]
+}
+
+model Inventory {
+  id          String   @id @default(cuid())
+  pharmacyId  String
+  drugId      String
+  stock       Int      @default(0)
+  priceCfa    Int      // price in XAF (CFA francs)
+  updatedAt   DateTime @updatedAt
+  pharmacy    Pharmacy @relation(fields: [pharmacyId], references: [id])
+  drug        Drug     @relation(fields: [drugId], references: [id])
+  @@unique([pharmacyId, drugId])
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  patientId     String
+  pharmacyId    String
+  totalCfa      Int
+  status        OrderStatus @default(PENDING)
+  paymentRef    String?     @unique
+  items         OrderItem[]
+  patient       Patient     @relation(fields: [patientId], references: [id])
+  pharmacy      Pharmacy    @relation(fields: [pharmacyId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  READY_FOR_PICKUP
+  COMPLETED
+  CANCELLED
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  drugId    String
+  quantity  Int
+  priceCfa  Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  drug      Drug    @relation(fields: [drugId], references: [id])
+}
