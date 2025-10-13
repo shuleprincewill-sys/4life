@@ -1,5 +1,5 @@
 import { Outlet, Link, NavLink } from 'react-router-dom'
-import { Pill, Store, BarChart2 } from 'lucide-react'
+import { Pill, Store, BarChart2, Stethoscope } from 'lucide-react'
 
 export function AppShell() {
   return (
@@ -12,6 +12,7 @@ export function AppShell() {
           <nav className="flex items-center gap-6 text-sm">
             <NavLink to="/" className={({isActive}) => isActive ? 'text-brand' : 'hover:text-brand'}>Find Medicines</NavLink>
             <NavLink to="/pharmacy/onboarding" className={({isActive}) => isActive ? 'text-brand' : 'hover:text-brand'}>Pharmacy Portal</NavLink>
+            <NavLink to="/providers" className={({isActive}) => isActive ? 'text-brand' : 'hover:text-brand'}>Doctors & Specialists</NavLink>
             <NavLink to="/admin" className={({isActive}) => isActive ? 'text-brand' : 'hover:text-brand'}>Analytics</NavLink>
           </nav>
         </div>

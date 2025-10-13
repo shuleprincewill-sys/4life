@@ -155,6 +155,47 @@ app.post('/api/orders', async (req, res) => {
 });
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
+// Providers directory endpoints
+app.get('/api/providers', async (req, res) => {
+  try {
+    const querySchema = z.object({ q: z.string().optional(), available: z.string().optional() });
+    const q = querySchema.parse(req.query);
+    const where: any = {};
+    if (q.q) {
+      where.OR = [
+        { name: { contains: q.q, mode: 'insensitive' } },
+        { specialty: { contains: q.q, mode: 'insensitive' } },
+        { address: { contains: q.q, mode: 'insensitive' } },
+      ];
+    }
+    if (q.available === 'true') where.available = true;
+
+    const providers = await prisma.provider.findMany({ where, orderBy: { name: 'asc' }, take: 100 });
+    res.json({ providers });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message || 'Invalid request' });
+  }
+});
+
+app.post('/api/providers', async (req, res) => {
+  try {
+    const bodySchema = z.object({
+      name: z.string().min(2),
+      specialty: z.string().optional(),
+      address: z.string().min(3),
+      phone: z.string().optional(),
+      email: z.string().email().optional(),
+      latitude: z.number(),
+      longitude: z.number(),
+      available: z.boolean().default(false),
+    });
+    const body = bodySchema.parse(req.body);
+    const provider = await prisma.provider.create({ data: body });
+    res.json({ provider });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message || 'Invalid request' });
+  }
+});
 
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
 app.listen(port, () => {

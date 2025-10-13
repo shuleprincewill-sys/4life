@@ -55,6 +55,21 @@ model Pharmacy {
   hours         String?   // JSON string of opening hours per day
 }
 
+model Provider {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  name       String
+  specialty  String?
+  address    String
+  phone      String?
+  email      String?
+  latitude   Float
+  longitude  Float
+  available  Boolean  @default(false)
+  verified   Boolean  @default(false)
+}
+
 model Drug {
   id          String      @id @default(cuid())
   createdAt   DateTime    @default(now())
@@ -65,6 +80,7 @@ model Drug {
   form        String?
   strength    String?
   inventories Inventory[]
+  orderItems  OrderItem[]
 }
 
 model Inventory {

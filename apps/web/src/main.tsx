@@ -6,6 +6,7 @@ import { AppShell } from './shell/AppShell'
 import { PatientHome } from './routes/PatientHome'
 import { PharmacyOnboarding } from './routes/PharmacyOnboarding'
 import { AdminDashboard } from './routes/AdminDashboard'
+import { ProvidersDirectory } from './routes/ProvidersDirectory'
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <PatientHome /> },
       { path: 'pharmacy/onboarding', element: <PharmacyOnboarding /> },
+      { path: 'providers', element: <ProvidersDirectory /> },
       { path: 'admin', element: <AdminDashboard /> },
     ],
   },
